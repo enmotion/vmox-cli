@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+const { program } = require('commander');
+const inquirer = require('inquirer');
+
+program.version('1.0.0');
+
+program
+.command('t <name>')
+.option('-j | --join <joinname>','smmde')
+.description('Print hello vmox to your name')
+.action((name)=>{
+    inquirer
+    .prompt([
+    {
+        type: 'input',
+        name: 'arg1',
+        message: 'Enter arg1:',
+    },
+    {
+        type: 'input',
+        name: 'arg2',
+        message: 'Enter arg2:',
+    },
+    ])
+    .then((answers) => {
+        const { arg1, arg2 } = answers;
+        console.log('arg1:', arg1);
+        console.log('arg2:', arg2);
+    });
+});
+
+program
+.command('s <name>')
+.description('shit hello vmox')
+.action((name)=>{
+    console.log('shit '+name);
+});
+
+program.parse(process.argv);
