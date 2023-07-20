@@ -1,0 +1,29 @@
+{
+  "name": "vmox-cli",
+  "version": "1.0.0",
+  "description": "vue, vmox-cli, creating a base project based on vmox.",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/enmotion/vmox-cli.git"
+  },
+  "keywords": [
+    "vue3",
+    "vue",
+    "components",
+    "base",
+    "Project"
+  ],
+  "author": "enmotion",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/enmotion/vmox-cli/issues"
+  },
+  "homepage": "https://github.com/enmotion/vmox-cli#readme",
+  "dependencies": {
+    "commander": "^11.0.0"
+  }
+}
