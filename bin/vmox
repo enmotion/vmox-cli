@@ -1,7 +1,7 @@
 #!/usr/bin/env node
+const { execSync } = require('child_process');
 const { program } = require('commander');
 const inquirer = require('inquirer');
-const { execSync } = require('child_process');
 const fsExtra = require('fs-extra');
 
 program.version('1.0.0');
@@ -54,7 +54,7 @@ program
                 const folderName = source.substring(source.lastIndexOf('/') + 1); // 根据路径获取文件夹名称
                 return !excludedFolders.includes(folderName);
               };
-              fsExtra.copy("./vmox-base-project", "./", { filter: filterFunc })
+              fsExtra.copy("./vmox-base", "./", { filter: filterFunc })
               .then(() => {
                 console.log('init complete');
                 fsExtra.removeSync('vmox-base');
@@ -86,8 +86,7 @@ function replaceContentToFile( path, replaceValueMapping, userOptionAnswers ){
       if (err) {
         console.error(err);
         return;
-      }
-      console.log('文件内容替换成功！');
+      };
     });
   });
 };

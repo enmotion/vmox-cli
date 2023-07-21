@@ -1,6 +1,6 @@
 {
   "name": "vmox-cli",
-  "version": "1.0.2-beta.0",
+  "version": "1.0.1-beta.1",
   "description": "vue, vmox-cli, creating a base project based on vmox.",
   "main": "index.js",
   "type": "commonjs",
@@ -28,10 +28,7 @@
   },
   "homepage": "https://github.com/enmotion/vmox-cli#readme",
   "dependencies": {
-    "axios": "^1.4.0",
-    "cli-progress": "^3.12.0",
     "commander": "^11.0.0",
-    "download": "^3.3.0",
     "fs-extra": "^11.1.1",
     "inquirer": "^8.2.5"
   }
