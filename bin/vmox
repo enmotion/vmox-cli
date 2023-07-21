@@ -46,7 +46,7 @@ program
               execSync(`mkdir -p ${appName}`); // 创建文件夹
               process.chdir(appName); // 进入创建文件夹
               console.log("Copy project code to local ...");
-              execSync(`git clone ${repository} vmox-base-project`);
+              execSync(`git clone ${repository} vmox-base`);
               console.log("Pull code completed");
               const excludedFolders = ['.git']; // 忽视文件夹
               // 定义过滤器函数
@@ -57,7 +57,7 @@ program
               fsExtra.copy("./vmox-base-project", "./", { filter: filterFunc })
               .then(() => {
                 console.log('init complete');
-                execSync(`rm -rf vmox-base-project`);  // 拉取代码
+                fsExtra.removeSync('vmox-base');
               })
               .then(()=>{
                 needReplaceFiles.forEach(path=>{
