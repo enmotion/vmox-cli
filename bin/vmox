@@ -19,18 +19,20 @@ program
           type: 'input',
           name: 'appName',
           message: 'Enter appName:',
+          default: appName,
         },
         {
-          type: 'input',
-          name: 'author',
-          message: 'Enter author:',
+          type: 'list',
+          name: 'routeMode',
+          message: 'Enter route-mode:',
+          choices:['hash','history'],
+          default: 'hash'
         },
       ])
       .then(async (userOptionAnswers) => {
         const needReplaceFiles = ['./package.json','./README.md'];
         const replaceValueMapping = [
           {k:'appName',v:'::app-name::'},
-          {k:'author',v:'::author::'}
         ];
         try {
           // 创建项目的文件夹，当前位置必须没有该文件夹方可创建
