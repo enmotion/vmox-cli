@@ -6,42 +6,42 @@ const fs = require('fs');
 program.version('1.0.0');
 
 program
-.command('create <appName>')
-.option('-j | --join <joinname>','smmde')
-.description('Print hello vmox to your name')
-.action((appName)=>{
+  .command('create <appName>')
+  .option('-j | --join <joinname>', 'smmde')
+  .description('Print hello vmox to your name')
+  .action((appName) => {
     inquirer
-    .prompt([
-    {
-        type: 'input',
-        name: 'arg1',
-        message: 'Enter arg1:',
-    },
-    {
-        type: 'input',
-        name: 'arg2',
-        message: 'Enter arg2:',
-    },
-    ])
-    .then((answers) => {
+      .prompt([
+        {
+          type: 'input',
+          name: 'arg1',
+          message: 'Enter arg1:',
+        },
+        {
+          type: 'input',
+          name: 'arg2',
+          message: 'Enter arg2:',
+        },
+      ])
+      .then((answers) => {
         // 创建项目文件夹
-        try{
-            fs.mkdirSync(appName);
-            console.log(`App folder '${appName}' created.`);
-        }catch(error){
-            console.error(`Failed to create app folder '${appName}'. ${error.message}`);
+        try {
+          fs.mkdirSync(appName);
+          console.log(`App folder '${appName}' created.`);
+        } catch (error) {
+          console.error(`Failed to create app folder '${appName}'. ${error.message}`);
         }
         const { arg1, arg2 } = answers;
         console.log('arg1:', arg1);
         console.log('arg2:', arg2);
-    });
-});
+      });
+  });
 
 program
-.command('s <name>')
-.description('shit hello vmox')
-.action((name)=>{
-    console.log('shit '+name);
-});
+  .command('s <name>')
+  .description('shit hello vmox')
+  .action((name) => {
+    console.log('shit ' + name);
+  });
 
 program.parse(process.argv);
