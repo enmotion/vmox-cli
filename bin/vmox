@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 const { program } = require('commander');
 const inquirer = require('inquirer');
+const fs = require('fs');
 
 program.version('1.0.0');
 
 program
-.command('t <name>')
+.command('create <appName>')
 .option('-j | --join <joinname>','smmde')
 .description('Print hello vmox to your name')
-.action((name)=>{
+.action((appName)=>{
     inquirer
     .prompt([
     {
@@ -23,6 +24,13 @@ program
     },
     ])
     .then((answers) => {
+        // 创建项目文件夹
+        try{
+            fs.mkdirSync(appName);
+            console.log(`App folder '${appName}' created.`);
+        }catch(error){
+            console.error(`Failed to create app folder '${appName}'. ${error.message}`);
+        }
         const { arg1, arg2 } = answers;
         console.log('arg1:', arg1);
         console.log('arg2:', arg2);
