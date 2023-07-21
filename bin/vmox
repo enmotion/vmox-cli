@@ -3,6 +3,7 @@ const { execSync } = require('child_process');
 const { program } = require('commander');
 const inquirer = require('inquirer');
 const fsExtra = require('fs-extra');
+const { replaceContentToFile, handleError } = require("./lib/index");
 
 program.version('1.0.0');
 
@@ -31,10 +32,6 @@ program
           {k:'appName',v:'::app-name::'},
           {k:'author',v:'::author::'}
         ];
-        const handleError = err => {
-          console.error(`Failed to create app folder '${appName}'. ${err.message}`);
-          process.exit(1);
-        };
         try {
           // 创建项目的文件夹，当前位置必须没有该文件夹方可创建
           fsExtra.pathExists(`./${appName}`,(err,exists)=>{
@@ -74,21 +71,7 @@ program
         } catch (error) {
           handleError(error);
         }
-        console.log(userOptionAnswers);
       });
   });
-
-function replaceContentToFile( path, replaceValueMapping, userOptionAnswers ){
-  fsExtra.readFile(path, 'utf-8', (err, data) => {
-    if (err) { return }
-    replaceValueMapping.forEach(item=>(data = data.replace(new RegExp(item.v,'g'), userOptionAnswers[item.k])));
-    fsExtra.writeFile(path, data, 'utf-8', (err) => {
-      if (err) {
-        console.error(err);
-        return;
-      };
-    });
-  });
-};
 
 program.parse(process.argv);
