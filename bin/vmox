@@ -88,7 +88,7 @@ function replaceContentToFile(path,configMapping,data){
     console.log(data,configMapping,11112333);
     let updatedContent = "";
     configMapping.forEach(item=>{
-      updatedContent = data.replace(new RegExp((item.v), 'g'), data[item.k])
+      updatedContent = data.replace(item.v, data[item.k])
     });
     console.log(updatedContent);
     fsExtra.writeFile(path, updatedContent, 'utf-8', (err) => {
