@@ -1,15 +1,17 @@
 #!/usr/bin/env node
 const { program } = require('commander');
 const inquirer = require('inquirer');
-const fs = require('fs');
+const { execSync } = require('child_process');
+const fs = require('fs-extra');
 
 program.version('1.0.0');
 
+const repository = "https://github.com/enmotion/vmox-base-project.git";
 program
   .command('create <appName>')
-  .option('-j | --join <joinname>', 'smmde')
-  .description('Print hello vmox to your name')
+  .description('Create a new vmox project')
   .action((appName) => {
+
     inquirer
       .prompt([
         {
@@ -23,13 +25,33 @@ program
           message: 'Enter arg2:',
         },
       ])
-      .then((answers) => {
+      .then(async (answers) => {
         // 创建项目文件夹
-        try {
-          fs.mkdirSync(appName);
-          console.log(`App folder '${appName}' created.`);
-        } catch (error) {
+        const handleError = err => {
           console.error(`Failed to create app folder '${appName}'. ${error.message}`);
+          process.exit(1);
+        };
+        try {
+          execSync(`mkdir -p ${appName}`); // 创建文件夹
+          process.chdir(appName); // 进入创建文件夹
+          execSync(`git clone ${repository} vmox-base-project` );  // 拉取代码
+          console.log("Code pull completed"); 
+          const excludedFolders = ['.git']; // 忽视文件夹
+          // 定义过滤器函数
+          function filterFunc(source, destination) {
+            const folderName = source.substring(source.lastIndexOf('/') + 1); // 根据路径获取文件夹名称
+            return !excludedFolders.includes(folderName);
+          };
+          fs.copy("./vmox-base-project", "./", { filter: filterFunc })
+            .then(() => {
+              console.log('工程初始化完成');
+              execSync(`rm -rf vmox-base-project`);  // 拉取代码
+            })
+            .catch((err) => {
+              console.error(err);
+            }); // 
+        } catch (error) {
+          handleError(err);
         }
         const { arg1, arg2 } = answers;
         console.log('arg1:', arg1);
@@ -37,11 +59,11 @@ program
       });
   });
 
-program
-  .command('s <name>')
-  .description('shit hello vmox')
-  .action((name) => {
-    console.log('shit ' + name);
-  });
+// program
+//   .command('s <name>')
+//   .description('shit hello vmox')
+//   .action((name) => {
+//     console.log('shit ' + name);
+//   });
 
 program.parse(process.argv);
