@@ -6,7 +6,7 @@ const fsExtra = require('fs-extra');
 
 program.version('1.0.0');
 
-const repository = "https://github.com/enmotion/vmox-base-project.git";
+const repository = "https://gitee.com/enmotion/vmox-base.git";
 
 program
   .command('create <appName>')
@@ -25,11 +25,11 @@ program
           message: 'Enter author:',
         },
       ])
-      .then(async (answers) => {
+      .then(async (userOptionAnswers) => {
         const needReplaceFiles = ['./package.json','./README.md'];
-        const configMapping = [
-          {k:'appName',v:'vmox-base-project'},
-          {k:'author',v:'enmotion'}
+        const replaceValueMapping = [
+          {k:'appName',v:'::app-name::'},
+          {k:'author',v:'::author::'}
         ];
         const handleError = err => {
           console.error(`Failed to create app folder '${appName}'. ${err.message}`);
@@ -61,7 +61,7 @@ program
               })
               .then(()=>{
                 needReplaceFiles.forEach(path=>{
-                  replaceContentToFile(path,configMapping,answers);
+                  replaceContentToFile(path,replaceValueMapping,userOptionAnswers);
                 })
               })
               .catch((err) => {
@@ -74,24 +74,15 @@ program
         } catch (error) {
           handleError(error);
         }
-        console.log(answers);
+        console.log(userOptionAnswers);
       });
   });
 
-function replaceContentToFile(path,configMapping,data){
+function replaceContentToFile( path, replaceValueMapping, userOptionAnswers ){
   fsExtra.readFile(path, 'utf-8', (err, data) => {
-    if (err) {
-      // console.error(err);
-      return;
-    }
-    // 替换文件中的内容
-    console.log(data,configMapping,11112333);
-    let updatedContent = "";
-    configMapping.forEach(item=>{
-      updatedContent = data.replace(item.v, data[item.k])
-    });
-    console.log(updatedContent);
-    fsExtra.writeFile(path, updatedContent, 'utf-8', (err) => {
+    if (err) { return }
+    replaceValueMapping.forEach(item=>(data = data.replace(new RegExp(item.v,'g'), userOptionAnswers[item.k])));
+    fsExtra.writeFile(path, data, 'utf-8', (err) => {
       if (err) {
         console.error(err);
         return;
