@@ -45,7 +45,7 @@ program
             if(!exists) {
               execSync(`mkdir -p ${appName}`); // 创建文件夹
               process.chdir(appName); // 进入创建文件夹
-              console.log("Pulling code");
+              console.log("Copy project code to local ...");
               execSync(`git clone ${repository} vmox-base-project`);
               console.log("Pull code completed");
               const excludedFolders = ['.git']; // 忽视文件夹
@@ -59,11 +59,11 @@ program
                 console.log('init complete');
                 execSync(`rm -rf vmox-base-project`);  // 拉取代码
               })
-              // .then(()=>{
-              //   // needReplaceFiles.forEach(path=>{
-              //   //   replaceContentToFile(path,configMapping);
-              //   // })
-              // })
+              .then(()=>{
+                needReplaceFiles.forEach(path=>{
+                  replaceContentToFile(path,configMapping,answers);
+                })
+              })
               .catch((err) => {
                 console.error(err);
               }); //
@@ -78,24 +78,26 @@ program
       });
   });
 
-function replaceContentToFile(path,configMapping){
+function replaceContentToFile(path,configMapping,data){
   fsExtra.readFile(path, 'utf-8', (err, data) => {
     if (err) {
-      console.error(err);
+      // console.error(err);
       return;
     }
     // 替换文件中的内容
     console.log(data,configMapping,11112333);
-    // const updatedContent = data.replace(new RegExp(searchStr, 'g'), replaceStr);
-    // console.log(updatedContent,33000)
-    // // 将替换后的内容写回到文件中
-    // fsExtra.writeFile(path, updatedContent, 'utf-8', (err) => {
-    //   if (err) {
-    //     console.error(err);
-    //     return;
-    //   }
-    //   console.log('文件内容替换成功！');
-    // });
+    let updatedContent = "";
+    configMapping.forEach(item=>{
+      updatedContent = data.replace(new RegExp((item.v), 'g'), data[item.k])
+    });
+    console.log(updatedContent);
+    fsExtra.writeFile(path, updatedContent, 'utf-8', (err) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      console.log('文件内容替换成功！');
+    });
   });
 };
 
