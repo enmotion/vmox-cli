@@ -3,7 +3,8 @@ const { execSync } = require('child_process');
 const { program } = require('commander');
 const inquirer = require('inquirer');
 const fsExtra = require('fs-extra');
-const { replaceContentToFile, handleError } = require("./lib/index");
+const path = require('path');
+const { replaceContentToFile, handleError, createFolder, removeFolder } = require("./lib/index");
 
 program.version('1.0.0');
 
@@ -75,5 +76,126 @@ program
         }
       });
   });
+
+// 添加页面
+program
+.command('add-p <name>')
+.description('Create a new vmox page content')
+.action((name) => {
+  inquirer
+  .prompt([
+    {
+      type: 'input',
+      name: 'name',
+      message: 'Enter page name:',
+      default: name,
+    },
+  ])
+  .then(async (userOptionAnswers) => {
+    try{
+      fsExtra.pathExists(path.join('package.json'),(err,exists)=>{
+        if(exists) {
+          const folderPath = path.join('src', 'pages', userOptionAnswers.name);
+          createFolder(folderPath)
+        }else{
+          console.error("No package.json file detected in the current location. You need to run this command in the root directory.")
+        }
+      })
+    }catch(err){
+      console.log(err.message);
+    }
+  })
+});
+// 删除页面
+program
+.command('remove-p <name>')
+.description('remove vmox page content')
+.action((name) => {
+  inquirer
+  .prompt([
+    {
+      type: 'input',
+      name: 'name',
+      message: 'Enter page name:',
+      default: name,
+    },
+  ])
+  .then(async (userOptionAnswers) => {
+    try{
+      fsExtra.pathExists(path.join('package.json'),(err,exists)=>{
+        if(exists) {
+          const folderPath = path.join('src', 'pages', userOptionAnswers.name);
+          removeFolder(folderPath)
+        }else{
+          console.error("No package.json file detected in the current location. You need to run this command in the root directory.")
+        }
+      })
+    }catch(err){
+      console.log(err.message);
+    }
+  })
+});
+
+// 新增组件
+program
+.command('add-c <name>')
+.description('Create a new vmox component content')
+.action((name) => {
+  inquirer
+  .prompt([
+    {
+      type: 'input',
+      name: 'name',
+      message: 'Enter component name:',
+      default: name,
+    },
+  ])
+  .then(async (userOptionAnswers) => {
+    try{
+      fsExtra.pathExists(path.join('package.json'),(err,exists)=>{
+        if(exists) {
+          const folderPath = path.join('src', 'parts', userOptionAnswers.name);
+          createFolder(folderPath)
+        }else{
+          console.error("No package.json file detected in the current location. You need to run this command in the root directory.")
+        }
+      })
+    }catch(err){
+      console.error("No package.json file detected in the current location. You need to run this command in the root directory.")
+    }
+  })
+});
+
+
+
+// 删除组件
+program
+.command('remove-c <name>')
+.description('remove vmox component content')
+.action((name) => {
+  inquirer
+  .prompt([
+    {
+      type: 'input',
+      name: 'name',
+      message: 'Enter component name:',
+      default: name,
+    },
+  ])
+  .then(async (userOptionAnswers) => {
+    try{
+      fsExtra.pathExists(path.join('package.json'),(err,exists)=>{
+        if(exists) {
+          const folderPath = path.join('src', 'parts', userOptionAnswers.name);
+          removeFolder(folderPath)
+        }else{
+          console.error("No package.json file detected in the current location. You need to run this command in the root directory.")
+        }
+      })
+    }catch(err){
+      console.error("No package.json file detected in the current location. You need to run this command in the root directory.")
+    }
+  })
+});
 
 program.parse(process.argv);
