@@ -25,7 +25,7 @@ function createFolder(folderPath) {
       console.log(`created:${folderPath}`);
     }
   });
-}
+};
 
 function removeFolder(folderPath) {
   fsExtra.pathExists(folderPath,(err,exists)=>{
@@ -41,11 +41,11 @@ function removeFolder(folderPath) {
       throw Error(`error: No ${folderPath} file detected from the current location.`)
     }
   });
-}
+};
 
 module.exports={
   replaceContentToFile,
   handleError,
   createFolder,
   removeFolder
-}
+};
