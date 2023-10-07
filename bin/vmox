@@ -103,7 +103,7 @@ program
     }catch(err){
       console.log(err.message);
     }
-  })
+  });
 });
 
 // 删除页面
