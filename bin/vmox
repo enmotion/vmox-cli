@@ -31,9 +31,9 @@ program
         },
       ])
       .then(async (userOptionAnswers) => {
-        const needReplaceFiles = ['./package.json','./README.md'];
+        const needReplaceFiles = ['./package.json','./README.md','./.env.production','./.env.development','./package-lock.json'];
         const replaceValueMapping = [
-          {k:'appName',v:'::app-name::'},
+          {k:'appName',v:'_APP-NAME_'},
         ];
         try {
           // 创建项目的文件夹，当前位置必须没有该文件夹方可创建
@@ -48,10 +48,11 @@ program
               console.log("Copy project code to local ...");
               execSync(`git clone ${repository} vmox-base`);
               console.log("Pull code completed");
-              const excludedFolders = ['.git']; // 忽视文件夹
+              const excludedFolders = ['git']; // 忽视文件夹
               // 定义过滤器函数
               function filterFunc(source, destination) {
-                const folderName = source.substring(source.lastIndexOf('/') + 1); // 根据路径获取文件夹名称
+                const folderName = source.substring(source.lastIndexOf('\.') + 1); // 根据路径获取文件夹名称
+                console.log(source,folderName,!excludedFolders.includes(folderName));
                 return !excludedFolders.includes(folderName);
               };
               fsExtra.copy("./vmox-base", "./", { filter: filterFunc })
@@ -93,6 +94,7 @@ program
   ])
   .then(async (userOptionAnswers) => {
     try{
+      // 判断是否在根目录下
       fsExtra.pathExists(path.join('package.json'),(err,exists)=>{
         if(exists) {
           createFolder(path.join(process.cwd(), 'src', 'pages', userOptionAnswers.name))
@@ -153,7 +155,7 @@ program
     try{
       fsExtra.pathExists(path.join('package.json'),(err,exists)=>{
         if(exists) {
-          createFolder(path.join(process.cwd(), 'src', 'parts', userOptionAnswers.name));
+          createFolder(path.join(process.cwd(), 'src/comps', 'project', userOptionAnswers.name));
         }else{
           console.error("No package.json file detected in the current location. You need to run this command in the root directory of this Project.")
         }
@@ -184,7 +186,7 @@ program
     try{
       fsExtra.pathExists(path.join('package.json'),(err,exists)=>{
         if(exists) {
-          removeFolder(path.join(process.cwd(), 'src', 'parts', userOptionAnswers.name));
+          removeFolder(path.join(process.cwd(), 'src/comps', 'project', userOptionAnswers.name));
         }else{
           console.error("No package.json file detected in the current location. You need to run this command in the root directory of this Project.")
         };
