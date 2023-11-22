@@ -12,8 +12,8 @@ function replaceContentToFile(path, replaceValueMapping, userOptionAnswers) {
   });
 };
 
-const handleError = err => {
-  console.error(`Failed to create app folder '${appName}'. ${err.message}`);
+const handleError = (err,ProjectName) => {
+  console.error(`Failed to create app folder '${ProjectName}'. ${err.message}`);
   process.exit(1);
 };
 

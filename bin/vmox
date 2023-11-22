@@ -11,16 +11,16 @@ program.version('1.0.0');
 const repository = "https://gitee.com/enmotion/vmox-base.git";
 
 program
-  .command('create <appName>')
+  .command('create <projectName>')
   .description('Create a new vmox project')
-  .action((appName) => {
+  .action((projectName) => {
     inquirer
       .prompt([
         {
           type: 'input',
           name: 'appName',
           message: 'Enter appName:',
-          default: appName,
+          default: projectName,
         },
         {
           type: 'list',
@@ -31,28 +31,22 @@ program
         },
       ])
       .then(async (userOptionAnswers) => {
-        const needReplaceFiles = ['./package.json','./README.md','./.env.production','./.env.development','./package-lock.json'];
-        const replaceValueMapping = [
-          {k:'appName',v:'_APP-NAME_'},
-        ];
         try {
+          const replaceValueMapping = [{k:'appName',v:'_APP-NAME_'},{k:'projectName',v:'_PROJECT_NAME_'}];
+          const needReplaceFiles = ['./package.json','./README.md','./package-lock.json','./.env.production','./.env.development'];
           // 创建项目的文件夹，当前位置必须没有该文件夹方可创建
-          fsExtra.pathExists(`./${appName}`,(err,exists)=>{
+          fsExtra.ensureDir(`./${projectName}`, (err) => {
             if (err) {
-              console.log(`Error:${err.message}`);
-              return;
-            };
-            if(!exists) {
-              execSync(`mkdir -p ${appName}`); // 创建文件夹
-              process.chdir(appName); // 进入创建文件夹
+              console.error('Error creating directory:', err);
+            } else {
+              process.chdir(projectName); // 进入创建文件夹
               console.log("Copy project code to local ...");
               execSync(`git clone ${repository} vmox-base`);
               console.log("Pull code completed");
               const excludedFolders = ['git']; // 忽视文件夹
-              // 定义过滤器函数
-              function filterFunc(source, destination) {
+              function filterFunc(source, destination) {  // 定义过滤器函数
                 const folderName = source.substring(source.lastIndexOf('\.') + 1); // 根据路径获取文件夹名称
-                console.log(source,folderName,!excludedFolders.includes(folderName));
+                !excludedFolders.includes(folderName) ? console.log('copy:',folderName) : console.log('drop:',folderName);
                 return !excludedFolders.includes(folderName);
               };
               fsExtra.copy("./vmox-base", "./", { filter: filterFunc })
@@ -62,18 +56,50 @@ program
               })
               .then(()=>{
                 needReplaceFiles.forEach(path=>{
-                  replaceContentToFile(path,replaceValueMapping,userOptionAnswers);
+                  replaceContentToFile(path,replaceValueMapping,Object.assign(userOptionAnswers,{projectName}));
                 })
               })
               .catch((err) => {
                 console.error(err);
               }); //
-            } else {
-              throw Error(`${appName} is already existed`);
             }
           });
+          // fsExtra.pathExists(`./${appName}`,(err,exists)=>{
+          //   if (err) {
+          //     console.log(`Error:${err.message}`);
+          //     return;
+          //   };
+          //   if(!exists) {
+          //     execSync(`mkdir -p ${appName}`); // 创建文件夹
+          //     process.chdir(appName); // 进入创建文件夹
+          //     console.log("Copy project code to local ...");
+          //     execSync(`git clone ${repository} vmox-base`);
+          //     console.log("Pull code completed");
+          //     const excludedFolders = ['git']; // 忽视文件夹
+          //     function filterFunc(source, destination) {  // 定义过滤器函数
+          //       const folderName = source.substring(source.lastIndexOf('\.') + 1); // 根据路径获取文件夹名称
+          //       !excludedFolders.includes(folderName) ? console.log('copy:',folderName) : console.log('drop:',folderName);
+          //       return !excludedFolders.includes(folderName);
+          //     };
+          //     fsExtra.copy("./vmox-base", "./", { filter: filterFunc })
+          //     .then(() => {
+          //       console.log('init complete');
+          //       fsExtra.removeSync('vmox-base');
+          //     })
+          //     .then(()=>{
+          //       needReplaceFiles.forEach(path=>{
+          //         replaceContentToFile(path,replaceValueMapping,userOptionAnswers);
+          //       })
+          //     })
+          //     .catch((err) => {
+          //       console.error(err);
+          //     }); //
+          //   } else {
+          //     throw Error(`${appName} is already existed`);
+          //   }
+          // });
         } catch (error) {
-          handleError(error);
+          handleError(error,projectName);
         }
       });
   });
