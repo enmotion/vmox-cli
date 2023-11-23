@@ -4,7 +4,9 @@ const { program } = require('commander');
 const inquirer = require('inquirer');
 const fsExtra = require('fs-extra');
 const path = require('path');
-const { replaceContentToFile, handleError, createFolder, removeFolder } = require("./lib/index");
+const pageTemplate = require("../template/page/template");
+const componentTemplate = require("../template/component/template");
+const { replaceContentToFile, replaceContentToString, handleError, createFolder, removeFolder } = require("./lib/index");
 
 program.version('1.0.0');
 
@@ -63,41 +65,7 @@ program
                 console.error(err);
               }); //
             }
-          });
-          // fsExtra.pathExists(`./${appName}`,(err,exists)=>{
-          //   if (err) {
-          //     console.log(`Error:${err.message}`);
-          //     return;
-          //   };
-          //   if(!exists) {
-          //     execSync(`mkdir -p ${appName}`); // 创建文件夹
-          //     process.chdir(appName); // 进入创建文件夹
-          //     console.log("Copy project code to local ...");
-          //     execSync(`git clone ${repository} vmox-base`);
-          //     console.log("Pull code completed");
-          //     const excludedFolders = ['git']; // 忽视文件夹
-          //     function filterFunc(source, destination) {  // 定义过滤器函数
-          //       const folderName = source.substring(source.lastIndexOf('\.') + 1); // 根据路径获取文件夹名称
-          //       !excludedFolders.includes(folderName) ? console.log('copy:',folderName) : console.log('drop:',folderName);
-          //       return !excludedFolders.includes(folderName);
-          //     };
-          //     fsExtra.copy("./vmox-base", "./", { filter: filterFunc })
-          //     .then(() => {
-          //       console.log('init complete');
-          //       fsExtra.removeSync('vmox-base');
-          //     })
-          //     .then(()=>{
-          //       needReplaceFiles.forEach(path=>{
-          //         replaceContentToFile(path,replaceValueMapping,userOptionAnswers);
-          //       })
-          //     })
-          //     .catch((err) => {
-          //       console.error(err);
-          //     }); //
-          //   } else {
-          //     throw Error(`${appName} is already existed`);
-          //   }
-          // });
+          });         
         } catch (error) {
           handleError(error,projectName);
         }
@@ -117,13 +85,40 @@ program
       message: 'Enter page name:',
       default: name,
     },
+    {
+      type: 'input',
+      name: 'path',
+      message: 'Enter page path:',
+      default: name,
+    },
+    {
+      type: 'input',
+      name: 'title',
+      message: 'Enter page title:',
+      default: name,
+    },
   ])
   .then(async (userOptionAnswers) => {
     try{
       // 判断是否在根目录下
       fsExtra.pathExists(path.join('package.json'),(err,exists)=>{
         if(exists) {
-          createFolder(path.join(process.cwd(), 'src', 'pages', userOptionAnswers.name))
+          createFolder(path.join(process.cwd(), 'src', 'pages', `${userOptionAnswers.name}-pg`));
+          const replaceValueMapping = [{k:'name',v:'_PAGE-NAME_'},{k:'path',v:'_PAGE-PATH_'},{k:'title',v:'_PAGE-TITLE_'}];
+          fsExtra.outputFile(`src/pages/${userOptionAnswers.name}-pg/page.vue`,replaceContentToString(pageTemplate.contentVue, replaceValueMapping, userOptionAnswers), function(err){
+            if (err) {
+              console.error(err);
+            } else {
+              console.log(`${userOptionAnswers.name}-pg/page.vue file created`);
+            }
+          });
+          fsExtra.outputFile(`src/pages/${userOptionAnswers.name}-pg/index.pg.ts`,replaceContentToString(pageTemplate.contentPgTs, replaceValueMapping, userOptionAnswers), function(err){
+            if (err) {
+              console.error(err);
+            } else {
+              console.log(`${userOptionAnswers.name}-pg/index.pg.ts file created`);
+            }
+          });
         }else{
           console.error("No package.json file detected in the current location. You need to run this command in the root directory of this Project.")
         }
@@ -146,13 +141,13 @@ program
       name: 'name',
       message: 'Enter page name:',
       default: name,
-    },
+    },    
   ])
   .then(async (userOptionAnswers) => {
     try{
       fsExtra.pathExists(path.join(path.resolve(__dirname, '..'),'package.json'),(err,exists)=>{
         if(exists) {
-          removeFolder(path.join(process.cwd(), 'src', 'pages', userOptionAnswers.name));
+          removeFolder(path.join(process.cwd(), 'src', 'pages', `${userOptionAnswers.name}-pg`));
         }else{
           console.error("No package.json file detected in the current location. You need to run this command in the root directory of this Project.")
         }
@@ -181,7 +176,22 @@ program
     try{
       fsExtra.pathExists(path.join('package.json'),(err,exists)=>{
         if(exists) {
-          createFolder(path.join(process.cwd(), 'src/comps', 'project', userOptionAnswers.name));
+          createFolder(path.join(process.cwd(), 'src/comps', 'project', `wg-${userOptionAnswers.name}`));
+          const replaceValueMapping = [{k:'name',v:'_COMP-NAME_'}];
+          fsExtra.outputFile(`src/comps/project/wg-${userOptionAnswers.name}/component.vue`,replaceContentToString(componentTemplate.contentVue, replaceValueMapping, userOptionAnswers), function(err){
+            if (err) {
+              console.error(err);
+            } else {
+              console.log(`wg-${userOptionAnswers.name}/component.vue file created`);
+            }
+          });
+          fsExtra.outputFile(`src/comps/project/wg-${userOptionAnswers.name}/index.cp.ts`,replaceContentToString(componentTemplate.contentCpTs, replaceValueMapping, userOptionAnswers), function(err){
+            if (err) {
+              console.error(err);
+            } else {
+              console.log(`wg-${userOptionAnswers.name}/index.cp.ts file created`);
+            }
+          });
         }else{
           console.error("No package.json file detected in the current location. You need to run this command in the root directory of this Project.")
         }
@@ -212,7 +222,7 @@ program
     try{
       fsExtra.pathExists(path.join('package.json'),(err,exists)=>{
         if(exists) {
-          removeFolder(path.join(process.cwd(), 'src/comps', 'project', userOptionAnswers.name));
+          removeFolder(path.join(process.cwd(), 'src/comps', 'project', `wg-${userOptionAnswers.name}`));
         }else{
           console.error("No package.json file detected in the current location. You need to run this command in the root directory of this Project.")
         };
