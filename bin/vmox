@@ -215,8 +215,6 @@ program
   })
 });
 
-
-
 // 删除组件
 program
 .command('remove-component <name>')
