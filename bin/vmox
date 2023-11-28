@@ -23,16 +23,29 @@ program
           default: projectName,
         },
         {
+          type: 'input',
+          name: 'baseRoute',
+          message: 'Enter base-route:',
+          default: '/'
+        },
+        {
           type: 'list',
-          name: 'routeMode',
-          message: 'Enter route-mode:',
+          name: 'historyMode',
+          message: 'choice route-historyMode:',
           choices:['hash','history'],
           default: 'hash'
+        },
+        {
+          type: 'list',
+          name: 'microFrame',
+          message: 'choice microFrame:',
+          choices:['wujie-app','micro-app'],
+          default: 'micro-app'
         },
       ])
       .then(async (userOptionAnswers) => {
         try {
-          const replaceValueMapping = [{k:'appName',v:'_APP-NAME_'},{k:'projectName',v:'_PROJECT_NAME_'}];
+          const replaceValueMapping = [{k:'appName',v:'_APP-NAME_'},{k:'projectName',v:'_PROJECT_NAME_'},{k:'historyMode',v:'_HISTORY_MODE_'},{k:'baseRoute',v:'_BASE_ROUTER_'}];
           const needReplaceFiles = ['./package.json','./README.md','./package-lock.json','./.env.production','./.env.development'];
           // 创建项目的文件夹，当前位置必须没有该文件夹方可创建
           fsExtra.ensureDir(`./${projectName}`, (err) => {
@@ -41,7 +54,7 @@ program
             } else {
               process.chdir(projectName); // 进入创建文件夹
               console.log("Copy project code to local ...");
-              execSync(`git clone ${repository} vmox-base`);
+              execSync(`git clone -b ${userOptionAnswers.microFrame} ${repository} vmox-base`);
               console.log("Pull code completed");
               const excludedFolders = ['git']; // 忽视文件夹
               function filterFunc(source, destination) {  // 定义过滤器函数
@@ -64,40 +77,6 @@ program
               }); //
             }
           });
-          // fsExtra.pathExists(`./${appName}`,(err,exists)=>{
-          //   if (err) {
-          //     console.log(`Error:${err.message}`);
-          //     return;
-          //   };
-          //   if(!exists) {
-          //     execSync(`mkdir -p ${appName}`); // 创建文件夹
-          //     process.chdir(appName); // 进入创建文件夹
-          //     console.log("Copy project code to local ...");
-          //     execSync(`git clone ${repository} vmox-base`);
-          //     console.log("Pull code completed");
-          //     const excludedFolders = ['git']; // 忽视文件夹
-          //     function filterFunc(source, destination) {  // 定义过滤器函数
-          //       const folderName = source.substring(source.lastIndexOf('\.') + 1); // 根据路径获取文件夹名称
-          //       !excludedFolders.includes(folderName) ? console.log('copy:',folderName) : console.log('drop:',folderName);
-          //       return !excludedFolders.includes(folderName);
-          //     };
-          //     fsExtra.copy("./vmox-base", "./", { filter: filterFunc })
-          //     .then(() => {
-          //       console.log('init complete');
-          //       fsExtra.removeSync('vmox-base');
-          //     })
-          //     .then(()=>{
-          //       needReplaceFiles.forEach(path=>{
-          //         replaceContentToFile(path,replaceValueMapping,userOptionAnswers);
-          //       })
-          //     })
-          //     .catch((err) => {
-          //       console.error(err);
-          //     }); //
-          //   } else {
-          //     throw Error(`${appName} is already existed`);
-          //   }
-          // });
         } catch (error) {
           handleError(error,projectName);
         }
