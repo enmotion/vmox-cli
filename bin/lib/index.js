@@ -12,6 +12,11 @@ function replaceContentToFile(path, replaceValueMapping, userOptionAnswers) {
   });
 };
 
+function replaceContentToString(string, replaceValueMapping, userOptionAnswers) {
+  replaceValueMapping.forEach(item => (string = string.replace(new RegExp(item.v, 'g'), userOptionAnswers[item.k])));
+  return string
+};
+
 const handleError = (err,ProjectName) => {
   console.error(`Failed to create app folder '${ProjectName}'. ${err.message}`);
   process.exit(1);
@@ -45,6 +50,7 @@ function removeFolder(folderPath) {
 
 module.exports={
   replaceContentToFile,
+  replaceContentToString,
   handleError,
   createFolder,
   removeFolder
