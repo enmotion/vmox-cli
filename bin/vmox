@@ -11,6 +11,66 @@ const { replaceContentToFile, replaceContentToString, handleError, createFolder,
 program.version('1.0.0');
 
 const repository = "https://gitee.com/enmotion/vmox-base.git";
+const repositoryComponent = "https://gitee.com/enmotion/vmox-base-component.git";
+
+program
+  .command('create-component-lib <projectName>')
+  .description('Create a new vmox lib')
+  .action((projectName) => {
+    inquirer
+      .prompt([
+        {
+          type: 'input',
+          name: 'libName',
+          message: 'Enter libName:',
+          default: projectName,
+        },
+        {
+          type: 'input',
+          name: 'description',
+          message: 'Enter description:',
+          default: 'vmox component lib...',
+        },  
+      ])
+      .then(async (userOptionAnswers) => {
+        try {
+          const replaceValueMapping = [{k:'libName',v:'&LIB_NAME&'},{k:'description',v:'&DESCRIPTION&'}];
+          const needReplaceFiles = ['./package.json','./README.md','./package-lock.json','./vite.config.ts'];
+          // 创建项目的文件夹，当前位置必须没有该文件夹方可创建
+          fsExtra.ensureDir(`./${projectName}`, (err) => {
+            if (err) {
+              console.error('Error creating directory:', err);
+            } else {
+              process.chdir(projectName); // 进入创建文件夹
+              console.log("Copy project code to local ...");
+              execSync(`git clone ${repositoryComponent} vmox-base-component`);
+              console.log("Pull code completed");
+              const excludedFolders = ['git']; // 忽视文件夹
+              function filterFunc(source, destination) {  // 定义过滤器函数
+                const folderName = source.substring(source.lastIndexOf('\.') + 1); // 根据路径获取文件夹名称
+                // !excludedFolders.includes(folderName) ? console.log('copy:',folderName) : console.log('drop:',folderName);
+                return !excludedFolders.includes(folderName);
+              };
+              fsExtra.copy("./vmox-base-component", "./", { filter: filterFunc })
+              .then(() => {
+                console.log('init complete');
+                fsExtra.removeSync('vmox-base-component');
+              })
+              .then(()=>{
+                needReplaceFiles.forEach(path=>{
+                  replaceContentToFile(path,replaceValueMapping,Object.assign(userOptionAnswers,{projectName}));
+                })
+              })
+              .catch((err) => {
+                console.error(err);
+              }); //
+            }
+          });
+        } catch (error) {
+          handleError(error,projectName);
+        }
+      });
+  });
 
 program
   .command('create <projectName>')
@@ -61,7 +121,7 @@ program
               const excludedFolders = ['git']; // 忽视文件夹
               function filterFunc(source, destination) {  // 定义过滤器函数
                 const folderName = source.substring(source.lastIndexOf('\.') + 1); // 根据路径获取文件夹名称
-                !excludedFolders.includes(folderName) ? console.log('copy:',folderName) : console.log('drop:',folderName);
+                // !excludedFolders.includes(folderName) ? console.log('copy:',folderName) : console.log('drop:',folderName);
                 return !excludedFolders.includes(folderName);
               };
               fsExtra.copy("./vmox-base", "./", { filter: filterFunc })
