@@ -1,6 +1,6 @@
 {
   "name": "vmox-cli",
-  "version": "1.0.0-beta.4",
+  "version": "1.0.0-beta.5",
   "description": "vue, vmox-cli, creating a base project based on vmox.",
   "main": "index.js",
   "type": "commonjs",

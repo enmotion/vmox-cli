@@ -1,6 +1,6 @@
 const contentVue =`<template>
   <div class="grow-1 flex-col">
-    _COMP-NAME_
+    &COMP-NAME&
   </div>
   
 </template>
@@ -10,7 +10,7 @@ import { defineComponent, getCurrentInstance } from 'vue';
 import publicStores from "@src/stores";
 
 export default defineComponent({
-  name:'vmo-_COMP-NAME_',
+  name:'vmo-&COMP-NAME&',
   components:{},
   emits:[],
   setup(props,context){

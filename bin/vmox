@@ -47,7 +47,7 @@ program
       ])
       .then(async (userOptionAnswers) => {
         try {
-          const replaceValueMapping = [{k:'appName',v:'_APP-NAME_'},{k:'projectName',v:'_PROJECT_NAME_'},{k:'historyMode',v:'_HISTORY_MODE_'},{k:'baseRoute',v:'_BASE_ROUTER_'}];
+          const replaceValueMapping = [{k:'appName',v:'&APP_NAME&'},{k:'projectName',v:'&PROJECT_NAME&'},{k:'historyMode',v:'&HISTORY_MODE&'},{k:'baseRoute',v:'&BASE_ROUTER&'}];
           const needReplaceFiles = ['./package.json','./README.md','./package-lock.json','./.env.production','./.env.development'];
           // 创建项目的文件夹，当前位置必须没有该文件夹方可创建
           fsExtra.ensureDir(`./${projectName}`, (err) => {
@@ -117,7 +117,7 @@ program
       fsExtra.pathExists(path.join('package.json'),(err,exists)=>{
         if(exists) {
           createFolder(path.join(process.cwd(), 'src', 'pages', `${userOptionAnswers.name}-pg`));
-          const replaceValueMapping = [{k:'name',v:'_PAGE-NAME_'},{k:'path',v:'_PAGE-PATH_'},{k:'title',v:'_PAGE-TITLE_'}];
+          const replaceValueMapping = [{k:'name',v:'&PAGE-NAME&'},{k:'path',v:'&PAGE-PATH&'},{k:'title',v:'&PAGE-TITLE&'}];
           fsExtra.outputFile(`src/pages/${userOptionAnswers.name}-pg/page.vue`,replaceContentToString(pageTemplate.contentVue, replaceValueMapping, userOptionAnswers), function(err){
             if (err) {
               console.error(err);
@@ -190,7 +190,7 @@ program
       fsExtra.pathExists(path.join('package.json'),(err,exists)=>{
         if(exists) {
           createFolder(path.join(process.cwd(), 'src/comps', 'project', `wg-${userOptionAnswers.name}`));
-          const replaceValueMapping = [{k:'name',v:'_COMP-NAME_'}];
+          const replaceValueMapping = [{k:'name',v:'&COMP-NAME&'}];
           fsExtra.outputFile(`src/comps/project/wg-${userOptionAnswers.name}/component.vue`,replaceContentToString(componentTemplate.contentVue, replaceValueMapping, userOptionAnswers), function(err){
             if (err) {
               console.error(err);
