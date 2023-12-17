@@ -7,7 +7,7 @@ const contentVue =`<template>
 
 <script lang="ts">
 import { defineComponent, getCurrentInstance } from 'vue';
-import { useRouter, useRoute } from "@src/router";
+import { useRouter, useRoute } from "@src/router/use.lib"; // The route API reencapsulated by introducing the vmox-cli project.
 import publicStores from "@src/stores";
 
 export default defineComponent({
@@ -26,11 +26,7 @@ export default defineComponent({
 })
 </script>`
 
-const contentPgTs=`/*
-* @Author: enmotion
-* @Last Modified by: enmotion
-*/
-
+const contentPgTs=`
 import type { VmoxRouteRecordRaw } from "@src/router/use.lib";
 
 const router: VmoxRouteRecordRaw = {
