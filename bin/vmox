@@ -1,88 +1,93 @@
 #!/usr/bin/env node
-const { execSync } = require('child_process');
-const { program } = require('commander');
-const inquirer = require('inquirer');
-const fsExtra = require('fs-extra');
-const path = require('path');
-const pageTemplate = require("../template/page/template");
-const componentTemplate = require("../template/component/template");
-const { replaceContentToFile, replaceContentToString, handleError, createFolder, removeFolder } = require("./lib/index");
+const { execSync } = require('child_process')
+const { program } = require('commander')
+const inquirer = require('inquirer')
+const fsExtra = require('fs-extra')
+const path = require('path')
+const pageTemplate = require('../template/page/template')
+const componentTemplate = require('../template/component/template')
+const { replaceContentToFile, replaceContentToString, handleError, createFolder, removeFolder } = require('./lib/index')
 
-program.version('1.0.0');
+program.version('1.0.0')
 
-const repository = "https://gitee.com/enmotion/vmox-base.git";
-const repositoryComponent = "https://gitee.com/enmotion/vmox-base-component.git";
+const repository = 'https://gitee.com/enmotion/vmox-base.git'
+const repositoryComponent = 'https://gitee.com/enmotion/vmox-base-component.git'
 
 program
   .command('create-component-lib <projectName>')
   .description('Create a new vmox lib')
-  .action((projectName) => {
+  .action(projectName => {
     inquirer
       .prompt([
         {
           type: 'input',
           name: 'libName',
           message: 'Enter libName:',
-          default: projectName,
+          default: projectName
         },
         {
           type: 'input',
           name: 'description',
           message: 'Enter description:',
-          default: 'vmox component lib...',
-        },  
-      ])
-      .then(async (userOptionAnswers) => {
-        try {
-          const replaceValueMapping = [{k:'libName',v:'&LIB_NAME&'},{k:'description',v:'&DESCRIPTION&'}];
-          const needReplaceFiles = ['./package.json','./README.md','./package-lock.json','./vite.config.ts'];
-          // 创建项目的文件夹，当前位置必须没有该文件夹方可创建
-          fsExtra.ensureDir(`./${projectName}`, (err) => {
-            if (err) {
-              console.error('Error creating directory:', err);
-            } else {
-              process.chdir(projectName); // 进入创建文件夹
-              console.log("Copy project code to local ...");
-              execSync(`git clone ${repositoryComponent} vmox-base-component`);
-              console.log("Pull code completed");
-              const excludedFolders = ['git']; // 忽视文件夹
-              function filterFunc(source, destination) {  // 定义过滤器函数
-                const folderName = source.substring(source.lastIndexOf('\.') + 1); // 根据路径获取文件夹名称
-                // !excludedFolders.includes(folderName) ? console.log('copy:',folderName) : console.log('drop:',folderName);
-                return !excludedFolders.includes(folderName);
-              };
-              fsExtra.copy("./vmox-base-component", "./", { filter: filterFunc })
-              .then(() => {
-                console.log('init complete');
-                fsExtra.removeSync('vmox-base-component');
-              })
-              .then(()=>{
-                needReplaceFiles.forEach(path=>{
-                  replaceContentToFile(path,replaceValueMapping,Object.assign(userOptionAnswers,{projectName}));
-                })
-              })
-              .catch((err) => {
-                console.error(err);
-              }); //
-            }
-          });
-        } catch (error) {
-          handleError(error,projectName);
+          default: 'vmox component lib...'
         }
-      });
-  });
+      ])
+      .then(async userOptionAnswers => {
+        try {
+          const replaceValueMapping = [
+            { k: 'libName', v: '&LIB_NAME&' },
+            { k: 'description', v: '&DESCRIPTION&' }
+          ]
+          const needReplaceFiles = ['./package.json', './README.md', './package-lock.json', './vite.config.ts']
+          // 创建项目的文件夹，当前位置必须没有该文件夹方可创建
+          fsExtra.ensureDir(`./${projectName}`, err => {
+            if (err) {
+              console.error('Error creating directory:', err)
+            } else {
+              process.chdir(projectName) // 进入创建文件夹
+              console.log('Copy project code to local ...')
+              execSync(`git clone ${repositoryComponent} vmox-base-component`)
+              console.log('Pull code completed')
+              const excludedFolders = ['git'] // 忽视文件夹
+              function filterFunc(source, destination) {
+                // 定义过滤器函数
+                const folderName = source.substring(source.lastIndexOf('.') + 1) // 根据路径获取文件夹名称
+                // !excludedFolders.includes(folderName) ? console.log('copy:',folderName) : console.log('drop:',folderName);
+                return !excludedFolders.includes(folderName)
+              }
+              fsExtra
+                .copy('./vmox-base-component', './', { filter: filterFunc })
+                .then(() => {
+                  console.log('init complete')
+                  fsExtra.removeSync('vmox-base-component')
+                })
+                .then(() => {
+                  needReplaceFiles.forEach(path => {
+                    replaceContentToFile(path, replaceValueMapping, Object.assign(userOptionAnswers, { projectName }))
+                  })
+                })
+                .catch(err => {
+                  console.error(err)
+                }) //
+            }
+          })
+        } catch (error) {
+          handleError(error, projectName)
+        }
+      })
+  })
 
 program
   .command('create <projectName>')
   .description('Create a new vmox project')
-  .action((projectName) => {
+  .action(projectName => {
     inquirer
       .prompt([
         {
           type: 'input',
           name: 'appName',
           message: 'Enter appName:',
-          default: projectName,
+          default: projectName
         },
         {
           type: 'input',
@@ -94,214 +99,259 @@ program
           type: 'list',
           name: 'historyMode',
           message: 'choice route-historyMode:',
-          choices:['hash','history'],
+          choices: ['hash', 'history'],
           default: 'hash'
         },
         {
           type: 'list',
           name: 'microFrame',
           message: 'choice microFrame:',
-          choices:['wujie-app','micro-app'],
-          default: 'micro-app'
-        },
-      ])
-      .then(async (userOptionAnswers) => {
-        try {
-          const replaceValueMapping = [{k:'appName',v:'&APP_NAME&'},{k:'projectName',v:'&PROJECT_NAME&'},{k:'historyMode',v:'&HISTORY_MODE&'},{k:'baseRoute',v:'&BASE_ROUTER&'}];
-          const needReplaceFiles = ['./package.json','./README.md','./package-lock.json','./.env.production','./.env.development'];
-          // 创建项目的文件夹，当前位置必须没有该文件夹方可创建
-          fsExtra.ensureDir(`./${projectName}`, (err) => {
-            if (err) {
-              console.error('Error creating directory:', err);
-            } else {
-              process.chdir(projectName); // 进入创建文件夹
-              console.log("Copy project code to local ...");
-              execSync(`git clone -b ${userOptionAnswers.microFrame} ${repository} vmox-base`);
-              console.log("Pull code completed");
-              const excludedFolders = ['git']; // 忽视文件夹
-              function filterFunc(source, destination) {  // 定义过滤器函数
-                const folderName = source.substring(source.lastIndexOf('\.') + 1); // 根据路径获取文件夹名称
-                // !excludedFolders.includes(folderName) ? console.log('copy:',folderName) : console.log('drop:',folderName);
-                return !excludedFolders.includes(folderName);
-              };
-              fsExtra.copy("./vmox-base", "./", { filter: filterFunc })
-              .then(() => {
-                console.log('init complete');
-                fsExtra.removeSync('vmox-base');
-              })
-              .then(()=>{
-                needReplaceFiles.forEach(path=>{
-                  replaceContentToFile(path,replaceValueMapping,Object.assign(userOptionAnswers,{projectName}));
-                })
-              })
-              .catch((err) => {
-                console.error(err);
-              }); //
-            }
-          });
-        } catch (error) {
-          handleError(error,projectName);
+          choices: ['none-micro-app', 'wujie-app', 'micro-app'],
+          default: 'none-micro-app'
         }
-      });
-  });
+      ])
+      .then(async userOptionAnswers => {
+        try {
+          const replaceValueMapping = [
+            { k: 'appName', v: '&APP_NAME&' },
+            { k: 'projectName', v: '&PROJECT_NAME&' },
+            { k: 'historyMode', v: '&HISTORY_MODE&' },
+            { k: 'baseRoute', v: '&BASE_ROUTER&' }
+          ]
+          const needReplaceFiles = [
+            './package.json',
+            './README.md',
+            './package-lock.json',
+            './.env.production',
+            './.env.development'
+          ]
+          // 创建项目的文件夹，当前位置必须没有该文件夹方可创建
+          fsExtra.ensureDir(`./${projectName}`, err => {
+            if (err) {
+              console.error('Error creating directory:', err)
+            } else {
+              process.chdir(projectName) // 进入创建文件夹
+              console.log('Copy project code to local ...')
+              execSync(`git clone -b ${userOptionAnswers.microFrame} ${repository} vmox-base`)
+              console.log('Pull code completed')
+              const excludedFolders = ['git'] // 忽视文件夹
+              function filterFunc(source, destination) {
+                // 定义过滤器函数
+                const folderName = source.substring(source.lastIndexOf('.') + 1) // 根据路径获取文件夹名称
+                // !excludedFolders.includes(folderName) ? console.log('copy:',folderName) : console.log('drop:',folderName);
+                return !excludedFolders.includes(folderName)
+              }
+              fsExtra
+                .copy('./vmox-base', './', { filter: filterFunc })
+                .then(() => {
+                  console.log('init complete')
+                  fsExtra.removeSync('vmox-base')
+                })
+                .then(() => {
+                  needReplaceFiles.forEach(path => {
+                    replaceContentToFile(path, replaceValueMapping, Object.assign(userOptionAnswers, { projectName }))
+                  })
+                })
+                .catch(err => {
+                  console.error(err)
+                }) //
+            }
+          })
+        } catch (error) {
+          handleError(error, projectName)
+        }
+      })
+  })
 
 // 添加页面
 program
-.command('create-page <name>')
-.description('Create a new vmox page content')
-.action((name) => {
-  inquirer
-  .prompt([
-    {
-      type: 'input',
-      name: 'name',
-      message: 'Enter page name:',
-      default: name,
-    },
-    {
-      type: 'input',
-      name: 'path',
-      message: 'Enter page path:',
-      default: name,
-    },
-    {
-      type: 'input',
-      name: 'title',
-      message: 'Enter page title:',
-      default: name,
-    },
-  ])
-  .then(async (userOptionAnswers) => {
-    try{
-      // 判断是否在根目录下
-      fsExtra.pathExists(path.join('package.json'),(err,exists)=>{
-        if(exists) {
-          createFolder(path.join(process.cwd(), 'src', 'pages', `${userOptionAnswers.name}-pg`));
-          const replaceValueMapping = [{k:'name',v:'&PAGE-NAME&'},{k:'path',v:'&PAGE-PATH&'},{k:'title',v:'&PAGE-TITLE&'}];
-          fsExtra.outputFile(`src/pages/${userOptionAnswers.name}-pg/page.vue`,replaceContentToString(pageTemplate.contentVue, replaceValueMapping, userOptionAnswers), function(err){
-            if (err) {
-              console.error(err);
-            } else {
-              console.log(`${userOptionAnswers.name}-pg/page.vue file created`);
-            }
-          });
-          fsExtra.outputFile(`src/pages/${userOptionAnswers.name}-pg/index.pg.ts`,replaceContentToString(pageTemplate.contentPgTs, replaceValueMapping, userOptionAnswers), function(err){
-            if (err) {
-              console.error(err);
-            } else {
-              console.log(`${userOptionAnswers.name}-pg/index.pg.ts file created`);
-            }
-          });
-        }else{
-          console.error("No package.json file detected in the current location. You need to run this command in the root directory of this Project.")
+  .command('create-page <name>')
+  .description('Create a new vmox page content')
+  .action(name => {
+    inquirer
+      .prompt([
+        {
+          type: 'input',
+          name: 'name',
+          message: 'Enter page name:',
+          default: name
+        },
+        {
+          type: 'input',
+          name: 'path',
+          message: 'Enter page path:',
+          default: name
+        },
+        {
+          type: 'input',
+          name: 'title',
+          message: 'Enter page title:',
+          default: name
         }
-      });
-    }catch(err){
-      console.log(err.message);
-    }
-  }); 
-});
+      ])
+      .then(async userOptionAnswers => {
+        try {
+          // 判断是否在根目录下
+          fsExtra.pathExists(path.join('package.json'), (err, exists) => {
+            if (exists) {
+              createFolder(path.join(process.cwd(), 'src', 'pages', `${userOptionAnswers.name}-pg`))
+              const replaceValueMapping = [
+                { k: 'name', v: '&PAGE-NAME&' },
+                { k: 'path', v: '&PAGE-PATH&' },
+                { k: 'title', v: '&PAGE-TITLE&' }
+              ]
+              fsExtra.outputFile(
+                `src/pages/${userOptionAnswers.name}-pg/page.vue`,
+                replaceContentToString(pageTemplate.contentVue, replaceValueMapping, userOptionAnswers),
+                function (err) {
+                  if (err) {
+                    console.error(err)
+                  } else {
+                    console.log(`${userOptionAnswers.name}-pg/page.vue file created`)
+                  }
+                }
+              )
+              fsExtra.outputFile(
+                `src/pages/${userOptionAnswers.name}-pg/index.pg.ts`,
+                replaceContentToString(pageTemplate.contentPgTs, replaceValueMapping, userOptionAnswers),
+                function (err) {
+                  if (err) {
+                    console.error(err)
+                  } else {
+                    console.log(`${userOptionAnswers.name}-pg/index.pg.ts file created`)
+                  }
+                }
+              )
+            } else {
+              console.error(
+                'No package.json file detected in the current location. You need to run this command in the root directory of this Project.'
+              )
+            }
+          })
+        } catch (err) {
+          console.log(err.message)
+        }
+      })
+  })
 
 // 删除页面
 program
-.command('remove-page <name>')
-.description('remove vmox page content')
-.action((name) => {
-  inquirer
-  .prompt([
-    {
-      type: 'input',
-      name: 'name',
-      message: 'Enter page name:',
-      default: name,
-    },    
-  ])
-  .then(async (userOptionAnswers) => {
-    try{
-      fsExtra.pathExists(path.join(path.resolve(__dirname, '..'),'package.json'),(err,exists)=>{
-        if(exists) {
-          removeFolder(path.join(process.cwd(), 'src', 'pages', `${userOptionAnswers.name}-pg`));
-        }else{
-          console.error("No package.json file detected in the current location. You need to run this command in the root directory of this Project.")
+  .command('remove-page <name>')
+  .description('remove vmox page content')
+  .action(name => {
+    inquirer
+      .prompt([
+        {
+          type: 'input',
+          name: 'name',
+          message: 'Enter page name:',
+          default: name
         }
-      });
-    }catch(err){
-      console.log(err.message);
-    }
+      ])
+      .then(async userOptionAnswers => {
+        try {
+          fsExtra.pathExists(path.join(path.resolve(__dirname, '..'), 'package.json'), (err, exists) => {
+            if (exists) {
+              removeFolder(path.join(process.cwd(), 'src', 'pages', `${userOptionAnswers.name}-pg`))
+            } else {
+              console.error(
+                'No package.json file detected in the current location. You need to run this command in the root directory of this Project.'
+              )
+            }
+          })
+        } catch (err) {
+          console.log(err.message)
+        }
+      })
   })
-});
 
 // 新增组件
 program
-.command('create-component <name>')
-.description('Create a new vmox component content')
-.action((name) => {
-  inquirer
-  .prompt([
-    {
-      type: 'input',
-      name: 'name',
-      message: 'Enter component name:',
-      default: name,
-    },
-  ])
-  .then(async (userOptionAnswers) => {
-    try{
-      fsExtra.pathExists(path.join('package.json'),(err,exists)=>{
-        if(exists) {
-          createFolder(path.join(process.cwd(), 'src/comps', 'project', `wg-${userOptionAnswers.name}`));
-          const replaceValueMapping = [{k:'name',v:'&COMP-NAME&'}];
-          fsExtra.outputFile(`src/comps/project/wg-${userOptionAnswers.name}/component.vue`,replaceContentToString(componentTemplate.contentVue, replaceValueMapping, userOptionAnswers), function(err){
-            if (err) {
-              console.error(err);
+  .command('create-component <name>')
+  .description('Create a new vmox component content')
+  .action(name => {
+    inquirer
+      .prompt([
+        {
+          type: 'input',
+          name: 'name',
+          message: 'Enter component name:',
+          default: name
+        }
+      ])
+      .then(async userOptionAnswers => {
+        try {
+          fsExtra.pathExists(path.join('package.json'), (err, exists) => {
+            if (exists) {
+              createFolder(path.join(process.cwd(), 'src/comps', 'project', `wg-${userOptionAnswers.name}`))
+              const replaceValueMapping = [{ k: 'name', v: '&COMP-NAME&' }]
+              fsExtra.outputFile(
+                `src/comps/project/wg-${userOptionAnswers.name}/component.vue`,
+                replaceContentToString(componentTemplate.contentVue, replaceValueMapping, userOptionAnswers),
+                function (err) {
+                  if (err) {
+                    console.error(err)
+                  } else {
+                    console.log(`wg-${userOptionAnswers.name}/component.vue file created`)
+                  }
+                }
+              )
+              fsExtra.outputFile(
+                `src/comps/project/wg-${userOptionAnswers.name}/index.cp.ts`,
+                replaceContentToString(componentTemplate.contentCpTs, replaceValueMapping, userOptionAnswers),
+                function (err) {
+                  if (err) {
+                    console.error(err)
+                  } else {
+                    console.log(`wg-${userOptionAnswers.name}/index.cp.ts file created`)
+                  }
+                }
+              )
             } else {
-              console.log(`wg-${userOptionAnswers.name}/component.vue file created`);
+              console.error(
+                'No package.json file detected in the current location. You need to run this command in the root directory of this Project.'
+              )
             }
-          });
-          fsExtra.outputFile(`src/comps/project/wg-${userOptionAnswers.name}/index.cp.ts`,replaceContentToString(componentTemplate.contentCpTs, replaceValueMapping, userOptionAnswers), function(err){
-            if (err) {
-              console.error(err);
-            } else {
-              console.log(`wg-${userOptionAnswers.name}/index.cp.ts file created`);
-            }
-          });
-        }else{
-          console.error("No package.json file detected in the current location. You need to run this command in the root directory of this Project.")
+          })
+        } catch (err) {
+          console.error(
+            'No package.json file detected in the current location. You need to run this command in the root directory.'
+          )
         }
       })
-    }catch(err){
-      console.error("No package.json file detected in the current location. You need to run this command in the root directory.")
-    }
   })
-});
 
 // 删除组件
 program
-.command('remove-component <name>')
-.description('remove vmox component content')
-.action((name) => {
-  inquirer
-  .prompt([
-    {
-      type: 'input',
-      name: 'name',
-      message: 'Enter component name:',
-      default: name,
-    },
-  ])
-  .then(async (userOptionAnswers) => {
-    try{
-      fsExtra.pathExists(path.join('package.json'),(err,exists)=>{
-        if(exists) {
-          removeFolder(path.join(process.cwd(), 'src/comps', 'project', `wg-${userOptionAnswers.name}`));
-        }else{
-          console.error("No package.json file detected in the current location. You need to run this command in the root directory of this Project.")
-        };
+  .command('remove-component <name>')
+  .description('remove vmox component content')
+  .action(name => {
+    inquirer
+      .prompt([
+        {
+          type: 'input',
+          name: 'name',
+          message: 'Enter component name:',
+          default: name
+        }
+      ])
+      .then(async userOptionAnswers => {
+        try {
+          fsExtra.pathExists(path.join('package.json'), (err, exists) => {
+            if (exists) {
+              removeFolder(path.join(process.cwd(), 'src/comps', 'project', `wg-${userOptionAnswers.name}`))
+            } else {
+              console.error(
+                'No package.json file detected in the current location. You need to run this command in the root directory of this Project.'
+              )
+            }
+          })
+        } catch (err) {
+          console.error(
+            'No package.json file detected in the current location. You need to run this command in the root directory.'
+          )
+        }
       })
-    }catch(err){
-      console.error("No package.json file detected in the current location. You need to run this command in the root directory.")
-    }
   })
-});
 
-program.parse(process.argv);
+program.parse(process.argv)
