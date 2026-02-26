@@ -8,7 +8,7 @@ const pageTemplate = require('../template/page/template')
 const componentTemplate = require('../template/component/template')
 const { replaceContentToFile, replaceContentToString, handleError, createFolder, removeFolder } = require('./lib/index')
 
-program.version('1.0.1')
+program.version('1.1.0')
 
 const repository = 'https://gitee.com/enmotion/vercel-vue-base.git'
 const repositoryComponent = 'https://gitee.com/enmotion/vmox-base-component.git'
