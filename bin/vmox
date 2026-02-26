@@ -10,9 +10,9 @@ const { replaceContentToFile, replaceContentToString, handleError, createFolder,
 
 program.version('1.0.0')
 
-const repository = 'https://gitee.com/enmotion/vmox-base.git'
+const repository = 'https://gitee.com/enmotion/vercel-vue-base.git'
 const repositoryComponent = 'https://gitee.com/enmotion/vmox-base-component.git'
-const repositoryKoaBase = "https://gitee.com/enmotion/vmox-koa-ts-base.git"
+const repositoryKoaBase = "https://gitee.com/enmotion/vercel-koa-base.git"
 
 program
   .command('create-component-lib <projectName>')
